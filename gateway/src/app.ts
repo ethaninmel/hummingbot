@@ -33,10 +33,10 @@ import { SushiswapConfig } from './connectors/sushiswap/sushiswap.config';
 import { DefikingdomsConfig } from './connectors/defikingdoms/defikingdoms.config';
 import { SerumConfig } from './connectors/serum/serum.config';
 import { PancakeSwapConfig } from './connectors/pancakeswap/pancakeswap.config';
+import { LfgswapConfig } from './connectors/lfgswap/lfgswap.config';
 
 import swaggerUi from 'swagger-ui-express';
 import { NearRoutes } from './chains/near/near.routes';
-import { LfgswapConfig } from './connectors/lfgswap/lfgswap.config';
 
 export const gatewayApp = express();
 
