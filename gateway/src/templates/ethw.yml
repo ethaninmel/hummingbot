@@ -1,0 +1,12 @@
+# list the BSC networks available to gateway
+networks:
+  mainnet: 
+    chainID: 10001
+    nodeURL: 'https://mainnet.ethereumpow.org'
+    tokenListType: FILE
+    tokenListSource: src/chains/ethw/tokens_mainnet.json
+    nativeCurrencySymbol: 'ETH'
+    gasPriceRefreshInterval: 60
+
+manualGasPrice: 100
+gasLimitTransaction: 3000000
