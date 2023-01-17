@@ -16,7 +16,6 @@ import {
 } from '@sushiswap/sdk';
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import { ExpectedTrade, Uniswapish } from '../../services/common-interfaces';
-import { Ethereum } from '../../chains/ethereum/ethereum';
 import {
   BigNumber,
   Wallet,
@@ -26,10 +25,11 @@ import {
 } from 'ethers';
 import { percentRegexp } from '../../services/config-manager-v2';
 import { logger } from '../../services/logger';
+import { EthereumPow } from '../../chains/ethw/ethw';
 
 export class Lfgswap implements Uniswapish {
   private static _instances: { [name: string]: Lfgswap };
-  private ethereum: Ethereum;
+  private chain: EthereumPow;
   private _router: string;
   private _routerAbi: ContractInterface;
   private _gasLimitEstimate: number;
@@ -38,14 +38,21 @@ export class Lfgswap implements Uniswapish {
   private tokenList: Record<string, Token> = {};
   private _ready: boolean = false;
 
-  private constructor(network: string) {
+  private constructor(chain: string, network: string) {
+    if (chain === 'ethw') {
+      this.chain = EthereumPow.getInstance(network);
+    } else if (chain === 'binance-smart-chain') {
+      
+    } else {
+      throw new Error('unsupported chain');
+    }
     const config = LfgswapConfig.config;
-    this.ethereum = Ethereum.getInstance(network);
-    this.chainId = this.ethereum.chainId;
+    this.chain = EthereumPow.getInstance(network);
+    this.chainId = this.chain.chainId;
     this._ttl = config.ttl;
     this._routerAbi = routerAbi.abi;
     this._gasLimitEstimate = config.gasLimitEstimate;
-    this._router = config.routerAddress(network);
+    this._router = config.routerAddress(chain, network);
   }
 
   public static getInstance(chain: string, network: string): Lfgswap {
@@ -53,7 +60,7 @@ export class Lfgswap implements Uniswapish {
       Lfgswap._instances = {};
     }
     if (!(chain + network in Lfgswap._instances)) {
-      Lfgswap._instances[chain + network] = new Lfgswap(network);
+      Lfgswap._instances[chain + network] = new Lfgswap(chain, network);
     }
 
     return Lfgswap._instances[chain + network];
@@ -70,10 +77,10 @@ export class Lfgswap implements Uniswapish {
   }
 
   public async init() {
-    if (!this.ethereum.ready()) {
-      await this.ethereum.init();
+    if (!this.chain.ready()) {
+      await this.chain.init();
     }
-    for (const token of this.ethereum.storedTokenList) {
+    for (const token of this.chain.storedTokenList) {
       this.tokenList[token.address] = new Token(
         this.chainId,
         token.address,
@@ -141,7 +148,7 @@ export class Lfgswap implements Uniswapish {
     const contract = new Contract(
       pairAddress,
       IUniswapV2Pair.abi,
-      this.ethereum.provider
+      this.chain.provider
     );
     const [reserves0, reserves1] = await contract.getReserves();
     const balances = baseToken.sortsBefore(quoteToken)
@@ -264,7 +271,7 @@ export class Lfgswap implements Uniswapish {
     });
     const contract: Contract = new Contract(sushswapRouter, abi, wallet);
     if (nonce === undefined) {
-      nonce = await this.ethereum.nonceManager.getNextNonce(wallet.address);
+      nonce = await this.chain.nonceManager.getNextNonce(wallet.address);
     }
     let tx: ContractTransaction;
     if (maxFeePerGas !== undefined || maxPriorityFeePerGas !== undefined) {
@@ -285,7 +292,7 @@ export class Lfgswap implements Uniswapish {
     }
 
     logger.info(tx);
-    await this.ethereum.nonceManager.commitNonce(wallet.address, nonce);
+    await this.chain.nonceManager.commitNonce(wallet.address, nonce);
     return tx;
   }
 }

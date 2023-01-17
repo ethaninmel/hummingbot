@@ -6,7 +6,7 @@ export namespace LfgswapConfig {
     allowedSlippage: string;
     gasLimitEstimate: number;
     ttl: number;
-    routerAddress: (network: string) => string;
+    routerAddress: (chain: string, network: string) => string;
     tradingTypes: Array<string>;
     availableNetworks: Array<AvailableNetworks>;
   }
@@ -19,9 +19,11 @@ export namespace LfgswapConfig {
       `lfgswap.gasLimitEstimate`
     ),
     ttl: ConfigManagerV2.getInstance().get('lfgswap.ttl'),
-    routerAddress: (network: string) =>
+    routerAddress: (chain: string, network: string) =>
       ConfigManagerV2.getInstance().get(
-        'lfgswap.contractAddresses.' + network + '.routerAddress'
+        'lfgswap.contractAddresses.'  +
+        chain +
+        '.' + network + '.routerAddress'
       ),
     tradingTypes: ['EVM_AMM'],
     availableNetworks: [{ chain: 'ethw', networks: ['mainnet'] }],

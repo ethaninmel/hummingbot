@@ -93,7 +93,7 @@ export class EthereumPow extends EthereumBase implements Ethereumish {
   getSpender(reqSpender: string): string {
     let spender: string;
     if (reqSpender === 'lfgswap') {
-      spender = LfgswapConfig.config.routerAddress(this._chain);
+      spender = LfgswapConfig.config.routerAddress(this.chainName, this._chain);
     } else {
       spender = reqSpender;
     }
