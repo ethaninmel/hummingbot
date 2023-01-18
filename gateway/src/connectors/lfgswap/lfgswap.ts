@@ -42,12 +42,11 @@ export class Lfgswap implements Uniswapish {
     if (chain === 'ethw') {
       this.chain = EthereumPow.getInstance(network);
     } else if (chain === 'binance-smart-chain') {
-      
+      this.chain = EthereumPow.getInstance(network);
     } else {
       throw new Error('unsupported chain');
     }
     const config = LfgswapConfig.config;
-    this.chain = EthereumPow.getInstance(network);
     this.chainId = this.chain.chainId;
     this._ttl = config.ttl;
     this._routerAbi = routerAbi.abi;
